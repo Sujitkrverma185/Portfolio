@@ -29,7 +29,6 @@ export default function Skills() {
         {/* Learning */}
         <h2 className="text-sm md:text-lg font-semibold tracking-[0.3em] mb-6 uppercase text-slate-300">Learning</h2>
         <div className="grid grid-cols-3 sm:grid-cols-4 gap-8 mb-12">
-          <SkillItem img="/mysql.svg" label="MYSQL" />
           <SkillItem img="/python.svg" label="PYTHON" />
           <SkillItem img="/data.png" label="DSA" />
           <SkillItem img="/ai-chipset.svg" label="AI" />
