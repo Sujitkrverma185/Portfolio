@@ -1,4 +1,4 @@
-import MyNavbar from "./navbar";
+import MyNavbar from "./Navbar";
 import Footer from "./footer";
 import Home from "./Home";
 import About from "./About";
