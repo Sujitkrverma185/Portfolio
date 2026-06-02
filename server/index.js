@@ -14,9 +14,21 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Dynamic CORS configurations supporting various local dev ports or configured envs
+const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(",")
+  : ["http://localhost:5173", "http://localhost:5174", "http://127.0.0.1:5173", "http://127.0.0.1:5174"];
+
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: (origin, callback) => {
+      if (!origin || ALLOWED_ORIGINS.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
   })
 );
 app.use(express.json());
@@ -25,17 +37,37 @@ const STORAGE_PATH = path.join(__dirname, "contacts.json");
 
 const readContacts = () => {
   try {
+    if (!fs.existsSync(STORAGE_PATH)) {
+      return [];
+    }
     const raw = fs.readFileSync(STORAGE_PATH, "utf8");
     return JSON.parse(raw);
-  } catch {
+  } catch (err) {
+    console.error("Error reading contacts.json, fallback to empty array:", err.message);
     return [];
   }
 };
 
 const saveContacts = (contacts) => {
-  fs.writeFileSync(STORAGE_PATH, JSON.stringify(contacts, null, 2), "utf8");
+  try {
+    const dir = path.dirname(STORAGE_PATH);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(STORAGE_PATH, JSON.stringify(contacts, null, 2), "utf8");
+  } catch (err) {
+    console.error("Failed to write to contacts.json:", err);
+  }
 };
 
+/*
+ * NOTE: Gmail SMTP requires an "App Password" to authenticate programmatically if 2FA is active on your account.
+ * Follow these instructions to set it up:
+ * 1. Go to your Google Account Settings -> Security.
+ * 2. Search for "App Passwords" (ensure 2-step verification is enabled first).
+ * 3. Generate a password for "Mail" on "Windows Computer" (or select other/custom).
+ * 4. Paste the 16-letter code into your VITE_API_URL or GMAIL_PASS environment variables inside your `.env` file.
+ */
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {

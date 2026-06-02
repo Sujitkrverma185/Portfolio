@@ -8,7 +8,7 @@ import Contact from "./Contact";
 
 export default function MyPortfolio() {
   return (
-    <div>
+    <div id="top" className="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-50 transition-colors duration-300">
         <div className="sticky top-0 z-50">
             <MyNavbar/>
         </div>
